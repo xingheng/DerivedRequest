@@ -12,6 +12,7 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
+		6817E9431FE25D9300CA8CFA /* SampleTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 6817E9421FE25D9300CA8CFA /* SampleTask.m */; };
 		D48F2990826EFB5C148CDA5F /* libPods-DerivedRequest_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A1DAB8DEF5ABDC91BBBA260 /* libPods-DerivedRequest_Tests.a */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +27,8 @@
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6003F5BB195388D20070C39A /* Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tests.m; sourceTree = "<group>"; };
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
+		6817E9411FE25D9300CA8CFA /* SampleTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SampleTask.h; sourceTree = "<group>"; };
+		6817E9421FE25D9300CA8CFA /* SampleTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SampleTask.m; sourceTree = "<group>"; };
 		6A1DAB8DEF5ABDC91BBBA260 /* libPods-DerivedRequest_Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DerivedRequest_Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD3193D8CED8E22FAE723CEA /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		CD9320B78B0629DB16A00709 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -91,6 +94,8 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				6817E9411FE25D9300CA8CFA /* SampleTask.h */,
+				6817E9421FE25D9300CA8CFA /* SampleTask.m */,
 				6003F5BB195388D20070C39A /* Tests.m */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
 			);
@@ -246,6 +251,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6817E9431FE25D9300CA8CFA /* SampleTask.m in Sources */,
 				6003F5BC195388D20070C39A /* Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

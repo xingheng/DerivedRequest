@@ -1,7 +1,26 @@
 //  The contents of this file are implicitly included at the beginning of every test case source file.
+#import <Foundation/Foundation.h>
 
 #ifdef __OBJC__
 
-  
+static inline BOOL IsNull(id value)
+{
+    if (!value || [value isKindOfClass : [NSNull class]]) {
+        return YES;
+    }
+
+    return NO;
+}
+
+static inline id GetValueFromDictionary(NSDictionary *dict, NSString *key)
+{
+    if (!key || ![dict.allKeys containsObject:key]) {
+        return nil;
+    }
+
+    id value = dict[key];
+
+    return IsNull(value) ? nil : value;
+}
 
 #endif
