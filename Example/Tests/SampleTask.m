@@ -17,7 +17,7 @@ NSString *const kSampleResponseContentType = @"application/json";
 
 BaseResponse * GenerateResponseForHttpBinData(id responseObject, NSError *error);
 
-#define kHttpBinDomain      @"https://httpbin.org"
+#define kHttpBinDomain @"https://httpbin.org"
 
 #pragma mark - SampleSessionManager
 
@@ -62,12 +62,12 @@ BaseResponse * GenerateResponseForHttpBinData(id responseObject, NSError *error)
 
 - (void)sessionManager:(BaseSessionManager *)sessionManager sendingRequest:(__kindof BaseRequest *)request
 {
-     NSLog(@"Sending request %@", request);
+    NSLog(@"Sending request %@", request);
 }
 
-- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject error:(NSError *)error
+- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject task:(NSURLSessionDataTask *)task error:(NSError *)error
 {
-    BaseResponse *response = [super sessionManager:sessionManager request:request completeWithResponse:responseObject error:error];
+    BaseResponse *response = [super sessionManager:sessionManager request:request completeWithResponse:responseObject task:task error:error];
 
     if (error) {
         NSLog(@"Failed in task: %@, error: %@", request.requestURL, error.localizedDescription);

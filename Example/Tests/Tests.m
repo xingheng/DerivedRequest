@@ -7,6 +7,7 @@
 //
 
 @import XCTest;
+#import <DerivedRequest/GenericTask.h>
 #import "SampleTask.h"
 
 @interface Tests : XCTestCase
@@ -26,9 +27,8 @@
 - (void)tearDown
 {
     // https://github.com/AFNetworking/AFNetworking/issues/466#issuecomment-7926896
-    while (dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_NOW)) {
+    while (dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_NOW))
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-    }
 
     self.semaphore = nil;
     [super tearDown];
@@ -42,12 +42,13 @@
 - (void)testRequestURL
 {
     SampleTask *task = [SampleTask task];
+
     [task sendRequest:@"get"
                method:HTTPMethodGet
            parameters:nil
            completion:^(BaseResponse *response) {
-               XCTAssertTrue([response.originDictionary[@"url"] containsString:@"get"]);
-               [self fulfillRequest];
+        XCTAssertTrue([response.originDictionary[@"url"] containsString:@"get"]);
+        [self fulfillRequest];
     }];
 }
 
@@ -58,7 +59,7 @@
 
     __block BaseResponse *response1, *response2;
 
-    void (^completion)(BaseResponse *response) = ^(BaseResponse *response) {
+    void (^ completion)(BaseResponse *response) = ^(BaseResponse *response) {
         if (!response1) {
             response1 = response;
         } else if (!response2) {
@@ -88,5 +89,22 @@
             completion:completion];
 }
 
-@end
+- (void)testGenericTask
+{
+    NewGenericTask().setSessionManager(^BaseSessionManager *() {
+        return [[BaseSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"http://httpbin.org/"]];
+    }).sendRequest(^(BaseRequest *request) {
+        request.method = HTTPMethodGet;
+        request.requestURL = @"ip";
+    }).progress(^(NSProgress *progress) {
+        XCTAssertEqual(progress.completedUnitCount, progress.totalUnitCount);
+    }).taskCompleted(^(BaseResponse *response, NSURLSessionDataTask *task) {
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
+        XCTAssertEqual(resp.statusCode, 200);
+    }).completion( ^(BaseResponse *response) {
+        XCTAssertTrue([response.originDictionary.allKeys containsObject:@"origin"]);
+        [self fulfillRequest];
+    }).send();
+}
 
+@end

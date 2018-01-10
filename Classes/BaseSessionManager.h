@@ -21,7 +21,7 @@ NSString * HTTPMethodString(HTTPMethod method);
 
 typedef void (^NetworkTaskProgress)(NSProgress *progress);
 typedef void (^NetworkTaskCompletion)(BaseResponse *response);
-
+typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask *task);
 
 #pragma mark - BaseRequest
 
@@ -49,7 +49,7 @@ typedef void (^NetworkTaskCompletion)(BaseResponse *response);
 
 - (void)sessionManager:(BaseSessionManager *)sessionManager sendingRequest:(__kindof BaseRequest *)request;
 
-- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject error:(NSError *)error;
+- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject task:(NSURLSessionDataTask *)task error:(NSError *)error;
 
 - (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request;
 
@@ -59,10 +59,14 @@ typedef void (^NetworkTaskCompletion)(BaseResponse *response);
 
 @interface BaseSessionManager : AFHTTPSessionManager
 
-@property (nonatomic, strong /* I mean it */) id<BaseSessionManagerDelegate> delegate;
+/**
+   Send the request with corresponding delegate.
 
-- (void)sendRequest:(BaseRequest *)request;
+   @note Both the request and delegate will be retained till the request get response.
 
-- (void)finishRequest:(BaseRequest *)request;
+   @param request     The request to be sent
+   @param delegate    The delegate used for the request status
+ */
+- (void)sendRequest:(BaseRequest *)request delegate:(id<BaseSessionManagerDelegate>)delegate;
 
 @end

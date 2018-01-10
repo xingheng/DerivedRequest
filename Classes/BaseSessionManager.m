@@ -10,7 +10,23 @@
 
 #pragma mark - BaseRequest
 
+@interface BaseRequest ()
+
+// Used in - isEqual: to compare current request and generated from copyWithZone:.
+@property (nonatomic, copy) NSString *identifier;
+
+@end
+
 @implementation BaseRequest
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.identifier = [NSUUID UUID].UUIDString;
+    }
+
+    return self;
+}
 
 + (instancetype)requestWithBlock:(void (^)(BaseRequest *))block
 {
@@ -29,6 +45,15 @@
             self.requestURL, HTTPMethodString(self.method), self.parameters];
 }
 
+- (BOOL)isEqual:(id)object
+{
+    if ([object isKindOfClass:[self class]]) {
+        return [self.identifier isEqualToString:((BaseRequest *)object).identifier];
+    }
+
+    return [super isEqual:object];
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
@@ -36,6 +61,7 @@
     BaseRequest *request = [[self class] allocWithZone:zone];
 
     if (request) {
+        request.identifier = [self.identifier copyWithZone:zone];
         request.requestURL = [self.requestURL copyWithZone:zone];
         request.method = self.method;
         request.parameters = [self.parameters copyWithZone:zone];
@@ -53,7 +79,7 @@
 
 @interface BaseSessionManager ()
 
-@property (nonatomic, strong) NSMutableArray<BaseRequest *> *requests;
+@property (nonatomic, strong) NSMutableDictionary<BaseRequest *, id<BaseSessionManagerDelegate> > *requests;
 
 @end
 
@@ -61,16 +87,16 @@
 
 #pragma mark - Public
 
-- (void)sendRequest:(BaseRequest *)request
+- (void)sendRequest:(BaseRequest *)request delegate:(id<BaseSessionManagerDelegate>)delegate
 {
     if (request.isBatchTask) {
         return;
     }
 
-    [self.requests addObject:request];
+    self.requests[request] = delegate ? : [NSNull null];
 
-    if (self.delegate) {
-        [self.delegate sessionManager:self sendingRequest:request];
+    if (delegate) {
+        [delegate sessionManager:self sendingRequest:request];
     }
 
     NSString *requestURL = request.requestURL;
@@ -90,8 +116,7 @@
         [strongSelf _responseCallback:task request:request response:nil error:error];
     };
 
-    if (taskProgress &&
-        (method == HTTPMethodPut || method == HTTPMethodDelete)) {
+    if (taskProgress && (method == HTTPMethodPut || method == HTTPMethodDelete)) {
         NSLog(@"taskProgress is invalid for PUT and DELETE request!");
     }
 
@@ -128,28 +153,12 @@
     }
 }
 
-- (void)finishRequest:(BaseRequest *)request
-{
-    [self.requests removeObject:request];
-
-    // Make sure the BaseSessionManager itself could be release after finishing all the tasks.
-    // https://github.com/AFNetworking/AFNetworking/issues/2149
-    [self invalidateSessionCancelingTasks:NO];
-
-    if (self.delegate) {
-        [self.delegate sessionManager:self finishRequest:request];
-    }
-
-    // Once the request completion is done, release the strong delegate reference explictly.
-    self.delegate = nil;
-}
-
 #pragma mark - Property
 
-- (NSMutableArray<BaseRequest *> *)requests
+- (NSMutableDictionary<BaseRequest *, id<BaseSessionManagerDelegate> > *)requests
 {
     if (!_requests) {
-        _requests = [NSMutableArray new];
+        _requests = [NSMutableDictionary new];
     }
 
     return _requests;
@@ -161,8 +170,10 @@
 {
     BaseResponse *response = nil;
 
-    if (self.delegate) {
-        response = [self.delegate sessionManager:self request:request completeWithResponse:responseObject error:error];
+    id<BaseSessionManagerDelegate> delegate = self.requests[request];
+
+    if (delegate && ![delegate isEqual:[NSNull null]]) {
+        response = [delegate sessionManager:self request:request completeWithResponse:responseObject task:task error:error];
     } else {
         response = responseObject ? : error;
         NSLog(@"No delegate to handle this response! %@. %@. %@", request, response, error);
@@ -174,7 +185,16 @@
         completionBlock(response);
     }
 
-    [self finishRequest:request];
+    // Make sure the BaseSessionManager itself could be release after finishing all the tasks.
+    // https://github.com/AFNetworking/AFNetworking/issues/2149
+    [self invalidateSessionCancelingTasks:NO];
+
+    if (delegate && ![delegate isEqual:[NSNull null]]) {
+        [delegate sessionManager:self finishRequest:request];
+    }
+
+    // Once the request completion is done, release the strong delegate reference explictly.
+    [self.requests removeObjectForKey:request];
 }
 
 @end

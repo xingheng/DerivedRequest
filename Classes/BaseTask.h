@@ -36,11 +36,11 @@
          completion:(NetworkTaskCompletion)completionBlock;
 
 /**
- *    @brief Make sure the task/request to be resent is valid before calling this method, a valid task
-            will be invalidated after calling sendRequest:method:parameters:progress:completion.
-            A task object used as a local autoreleased object generally, so the caller could get a valid
-            task/request object from an invalid task/request via [task copy] to generate a new one
-            which has same request entity and session manager configuration.
+   Make sure the task/request to be resent is valid before calling this method, a valid task
+   will be invalidated after calling sendRequest:method:parameters:progress:completion.
+   A task object used as a local autoreleased object generally, so the caller could get a valid
+   task/request object from an invalid task/request via [task copy] to generate a new one
+   which has same request entity and session manager configuration.
  */
 - (void)resendRequest;
 

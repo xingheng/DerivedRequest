@@ -60,11 +60,6 @@
            progress:(NetworkTaskProgress)taskProgress
          completion:(NetworkTaskCompletion)completionBlock
 {
-    // From this time, the BaseSessionManager/AFHTTPSessionManager/NSURLSession
-    //  retains the current task, too. Its retain count won't be decreased until
-    //  the task completion be executed.
-    self.sessionManager.delegate = self;
-
     NSAssert(self.sessionManager, @"Setup a request instance before sending request.");
 
     BaseRequest *request = [BaseRequest requestWithBlock:^(BaseRequest *request) {
@@ -77,18 +72,21 @@
     }];
 
     self.request = request;
-    [self.sessionManager sendRequest:request];
+
+    // From this time, the BaseSessionManager/AFHTTPSessionManager/NSURLSession
+    //  retains the current task, too. Its retain count won't be decreased until
+    //  the task completion be executed.
+    [self.sessionManager sendRequest:request delegate:self];
 }
 
 - (void)resendRequest
 {
-    self.sessionManager.delegate = self;
     self.response = nil;
 
     NSAssert(self.sessionManager, @"Setup a request instance before sending request.");
     NSAssert(self.request, @"Invalid request entity was found before resending.");
 
-    [self.sessionManager sendRequest:self.request];
+    [self.sessionManager sendRequest:self.request delegate:self];
 }
 
 #pragma mark - Property
@@ -128,7 +126,7 @@
     // NSLog(@"Sending request %@", request);
 }
 
-- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject error:(NSError *)error
+- (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject task:(NSURLSessionDataTask *)task error:(NSError *)error
 {
     BaseResponse *response = nil;
 
