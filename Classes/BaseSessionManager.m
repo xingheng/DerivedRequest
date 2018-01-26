@@ -12,21 +12,11 @@
 
 @interface BaseRequest ()
 
-// Used in - isEqual: to compare current request and generated from copyWithZone:.
-@property (nonatomic, copy) NSString *identifier;
+@property (nonatomic, strong) id<BaseSessionManagerDelegate> delegate;
 
 @end
 
 @implementation BaseRequest
-
-- (instancetype)init
-{
-    if (self = [super init]) {
-        self.identifier = [NSUUID UUID].UUIDString;
-    }
-
-    return self;
-}
 
 + (instancetype)requestWithBlock:(void (^)(BaseRequest *))block
 {
@@ -45,15 +35,6 @@
             self.requestURL, HTTPMethodString(self.method), self.parameters];
 }
 
-- (BOOL)isEqual:(id)object
-{
-    if ([object isKindOfClass:[self class]]) {
-        return [self.identifier isEqualToString:((BaseRequest *)object).identifier];
-    }
-
-    return [super isEqual:object];
-}
-
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
@@ -61,7 +42,6 @@
     BaseRequest *request = [[self class] allocWithZone:zone];
 
     if (request) {
-        request.identifier = [self.identifier copyWithZone:zone];
         request.requestURL = [self.requestURL copyWithZone:zone];
         request.method = self.method;
         request.parameters = [self.parameters copyWithZone:zone];
@@ -75,11 +55,12 @@
 
 @end
 
+
 #pragma mark - BaseSessionManager
 
 @interface BaseSessionManager ()
 
-@property (nonatomic, strong) NSMutableDictionary<BaseRequest *, id<BaseSessionManagerDelegate> > *requests;
+@property (nonatomic, strong) NSMutableArray<BaseRequest *> *requests;
 
 @end
 
@@ -93,7 +74,8 @@
         return;
     }
 
-    self.requests[request] = delegate ? : [NSNull null];
+    request.delegate = delegate;
+    [self.requests addObject:request];
 
     if (delegate) {
         [delegate sessionManager:self sendingRequest:request];
@@ -155,10 +137,10 @@
 
 #pragma mark - Property
 
-- (NSMutableDictionary<BaseRequest *, id<BaseSessionManagerDelegate> > *)requests
+- (NSMutableArray<BaseRequest *> *)requests
 {
     if (!_requests) {
-        _requests = [NSMutableDictionary new];
+        _requests = [NSMutableArray new];
     }
 
     return _requests;
@@ -170,7 +152,7 @@
 {
     BaseResponse *response = nil;
 
-    id<BaseSessionManagerDelegate> delegate = self.requests[request];
+    id<BaseSessionManagerDelegate> delegate = request.delegate;
 
     if (delegate && ![delegate isEqual:[NSNull null]]) {
         response = [delegate sessionManager:self request:request completeWithResponse:responseObject task:task error:error];
@@ -194,7 +176,8 @@
     }
 
     // Once the request completion is done, release the strong delegate reference explictly.
-    [self.requests removeObjectForKey:request];
+    request.delegate = nil;
+    [self.requests removeObject:request];
 }
 
 @end
