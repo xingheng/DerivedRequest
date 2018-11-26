@@ -7,9 +7,9 @@
 
 #import <DerivedRequest/BaseTask.h>
 
-typedef BaseSessionManager * (^SessionManagerGetter)();
+typedef BaseSessionManager * (^SessionManagerGetter)(void);
 typedef void (^RequestSetter)(BaseRequest *request);
-typedef NetworkResponseDataHandler (^ResponseHandlerGetter)();
+typedef NetworkResponseDataHandler (^ResponseHandlerGetter)(void);
 typedef void (^ResponseSetter)(BaseResponse *response);
 
 
@@ -30,7 +30,7 @@ typedef void (^ResponseSetter)(BaseResponse *response);
 
 - (GenericTask *(^)(ResponseHandlerGetter getter))responseHandlerBlock;
 
-- (GenericTask *(^)())send;
+- (GenericTask *(^)(void))send;
 
 @end
 

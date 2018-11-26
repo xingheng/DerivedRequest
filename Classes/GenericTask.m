@@ -85,7 +85,7 @@
     };
 }
 
-- (GenericTask *(^)())send
+- (GenericTask *(^)(void))send
 {
     return ^id () {
                // From this time, the BaseSessionManager/AFHTTPSessionManager/NSURLSession
