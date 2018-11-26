@@ -131,7 +131,7 @@
     BaseResponse *response = nil;
 
     if (self.responseHandler) {
-        response = self.responseHandler(responseObject, error);
+        response = self.responseHandler(request, responseObject, error);
     } else {
         response = CreateResponse(responseObject, 0, error.localizedDescription, nil, error);
     }

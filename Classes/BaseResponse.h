@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class BaseRequest;
+
 @interface BaseResponse : NSObject
 
 @property (nonatomic, strong, readonly) NSDictionary *originDictionary;
@@ -19,6 +21,6 @@
 
 @end
 
-typedef BaseResponse * (*NetworkResponseDataHandler)(id responseObject, NSError *error);
+typedef BaseResponse * (*NetworkResponseDataHandler)(BaseRequest *request, id responseObject, NSError *error);
 
 BaseResponse * CreateResponse(NSDictionary *originDictionary, NSUInteger code, NSString *message, id data, NSError *error);

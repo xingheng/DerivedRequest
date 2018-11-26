@@ -15,7 +15,7 @@ NSString *const kSampleRequestHeaderKey = @"Key1";
 NSString *const kSampleRequestHeaderValue = @"Value1";
 NSString *const kSampleResponseContentType = @"application/json";
 
-BaseResponse * GenerateResponseForHttpBinData(id responseObject, NSError *error);
+BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseObject, NSError *error);
 
 #define kHttpBinDomain @"https://httpbin.org"
 
@@ -87,7 +87,7 @@ BaseResponse * GenerateResponseForHttpBinData(id responseObject, NSError *error)
 
 #pragma mark - Functions
 
-BaseResponse * GenerateResponseForHttpBinData(id responseObject, NSError *error)
+BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseObject, NSError *error)
 {
     if (error || ![responseObject isKindOfClass:[NSDictionary class]]) {
         return CreateResponse(responseObject, error ? 400 : 0, error.localizedDescription, nil, error);
