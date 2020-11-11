@@ -47,8 +47,20 @@
                method:HTTPMethodGet
            parameters:nil
            completion:^(BaseResponse *response) {
-        XCTAssertTrue([response.originDictionary[@"url"] containsString:@"get"]);
+        XCTAssertTrue([response.rawData[@"url"] containsString:@"get"]);
         [self fulfillRequest];
+    }];
+
+    [task sendRequest:^(BaseRequest *request) {
+        request.requestURL = @"get";
+        request.method = HTTPMethodGet;
+        request.completion = ^(BaseResponse *response) {
+            XCTAssertTrue([response.rawData[@"url"] containsString:@"get"]);
+            [self fulfillRequest];
+        };
+    }
+       sessionManager:^(__kindof BaseSessionManager *sessionManager) {
+        [sessionManager.requestSerializer setValue:nil forHTTPHeaderField:@""];
     }];
 }
 
@@ -67,42 +79,47 @@
         }
 
         if (response1 && response2) {
-            NSDictionary *headers = response1.originDictionary[@"headers"];
+            NSDictionary *headers = response1.rawData[@"headers"];
 
             XCTAssertTrue([headers.allKeys containsObject:kSampleRequestHeaderKey]);
             XCTAssertTrue([headers.allValues containsObject:kSampleRequestHeaderValue]);
 
-            XCTAssertEqualObjects(headers, response2.originDictionary[@"headers"]);
+            XCTAssertEqualObjects(headers, response2.rawData[@"headers"]);
 
             [self fulfillRequest];
         }
     };
 
-    [task1 sendRequest:@"headers"
-                method:HTTPMethodGet
-            parameters:nil
-            completion:completion];
+    [task1 sendRequest:^(BaseRequest *request) {
+        request.requestURL = @"headers";
+        request.method = HTTPMethodGet;
+        request.completion = completion;
+    }];
 
-    [task2 sendRequest:@"headers"
-                method:HTTPMethodGet
-            parameters:nil
-            completion:completion];
+    [task2 sendRequest:^(BaseRequest *request) {
+        request.requestURL = @"headers";
+        request.method = HTTPMethodGet;
+        request.completion = completion;
+    }
+        sessionManager:^(__kindof BaseSessionManager *sessionManager) {
+
+    }];
 }
 
 - (void)testGenericTask
 {
-    NewGenericTask().setSessionManager(^BaseSessionManager *() {
-        return [[BaseSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"http://httpbin.org/"]];
-    }).sendRequest(^(BaseRequest *request) {
+    NewGenericTask().setSessionManagerClass(^Class() {
+        return BaseSessionManager.class;
+    }).requestEntity(^(BaseRequest *request) {
         request.method = HTTPMethodGet;
-        request.requestURL = @"ip";
+        request.requestURL = @"http://httpbin.org/ip";
     }).progress(^(NSProgress *progress) {
         XCTAssertEqual(progress.completedUnitCount, progress.totalUnitCount);
     }).taskCompleted(^(BaseResponse *response, NSURLSessionDataTask *task) {
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
         XCTAssertEqual(resp.statusCode, 200);
     }).completion( ^(BaseResponse *response) {
-        XCTAssertTrue([response.originDictionary.allKeys containsObject:@"origin"]);
+        XCTAssertTrue([[response.rawData allKeys] containsObject:@"origin"]);
         [self fulfillRequest];
     }).send();
 }

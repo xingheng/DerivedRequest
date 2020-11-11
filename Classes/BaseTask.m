@@ -12,8 +12,8 @@
 
 @interface BaseTask ()
 
+@property (nonatomic, strong) __kindof BaseSessionManager *sessionManager;
 @property (nonatomic, strong) __kindof BaseRequest *request;
-
 @property (nonatomic, strong) __kindof BaseResponse *response;
 
 @property (nonatomic, assign) BOOL isBatchTask;  // default is NO
@@ -31,11 +31,11 @@
 
 + (instancetype)task
 {
-    BaseTask *task = [self new];
+    BaseTask *task = [BaseTask new];
 
     task.sessionManagerClass = [BaseSessionManager class];
 
-    return task;
+    return [self new];
 }
 
 + (instancetype)taskAsBatchItem
@@ -60,9 +60,7 @@
            progress:(NetworkTaskProgress)taskProgress
          completion:(NetworkTaskCompletion)completionBlock
 {
-    NSAssert(self.sessionManager, @"Setup a request instance before sending request.");
-
-    BaseRequest *request = [BaseRequest requestWithBlock:^(BaseRequest *request) {
+    [self sendRequest:^(BaseRequest *request) {
         request.requestURL = requestURL;
         request.method = method;
         request.parameters = parameters;
@@ -70,13 +68,27 @@
         request.completion = completionBlock;
         request.isBatchTask = self.isBatchTask;
     }];
+}
 
-    self.request = request;
+- (void)sendRequest:(void (^)(BaseRequest *request))requestBlock
+{
+    [self sendRequest:requestBlock sessionManager:nil];
+}
+
+- (void)sendRequest:(void (^)(BaseRequest *request))requestBlock
+     sessionManager:(void (^)(__kindof BaseSessionManager *sessionManager))sessionManagerBlock
+{
+    NSParameterAssert(requestBlock);
+
+    self.request = [BaseRequest new];
+
+    !requestBlock ? : requestBlock(self.request);
+    !sessionManagerBlock ? : sessionManagerBlock(self.sessionManager);
 
     // From this time, the BaseSessionManager/AFHTTPSessionManager/NSURLSession
     //  retains the current task, too. Its retain count won't be decreased until
-    //  the task completion be executed.
-    [self.sessionManager sendRequest:request delegate:self];
+    //  the task completion be finished.
+    [self.sessionManager sendRequest:self.request delegate:self];
 }
 
 - (void)resendRequest
@@ -94,6 +106,7 @@
 - (__kindof BaseSessionManager *)sessionManager
 {
     if (!_sessionManager) {
+        NSAssert(self.sessionManagerClass, @"A session manager class or instance is required!");
         _sessionManager = [self.sessionManagerClass new];
     }
 
@@ -108,7 +121,6 @@
 
     if (task) {
         task.request = [self.request copyWithZone:zone];
-
         task.sessionManager = [self.sessionManager copyWithZone:zone];
         task.sessionManagerClass = [self.sessionManagerClass copy];
 
@@ -133,7 +145,7 @@
     if (self.responseHandler) {
         response = self.responseHandler(request, responseObject, error);
     } else {
-        response = CreateResponse(responseObject, 0, error.localizedDescription, nil, error);
+        response = [BaseResponse responseWithData:responseObject error:error];
     }
 
     self.response = response;

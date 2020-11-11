@@ -52,8 +52,8 @@ BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseO
 {
     SampleTask *task = [super task];
 
-    task.sessionManagerClass = [SampleSessionManager class];
     task.responseHandler = GenerateResponseForHttpBinData;
+    task.sessionManagerClass = [SampleSessionManager class];
 
     return task;
 }
@@ -90,8 +90,8 @@ BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseO
 BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseObject, NSError *error)
 {
     if (error || ![responseObject isKindOfClass:[NSDictionary class]]) {
-        return CreateResponse(responseObject, error ? 400 : 0, error.localizedDescription, nil, error);
+        return [BaseResponse responseWithData:responseObject error:error code:error.code message:nil data:nil];
     }
 
-    return CreateResponse(responseObject, error ? -1 : HttpBinErrorCodeNone, nil, responseObject, error);
+    return [BaseResponse responseWithData:responseObject error:error code:error ? -1 : HttpBinErrorCodeNone message:nil data:responseObject];
 }

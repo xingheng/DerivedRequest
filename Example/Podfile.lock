@@ -21,7 +21,7 @@ DEPENDENCIES:
   - DerivedRequest (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - AFNetworking
 
 EXTERNAL SOURCES:
@@ -30,8 +30,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  DerivedRequest: f80e07fd7911b32220cb523af7c671b2d12f43ef
+  DerivedRequest: 8b9ab5aa617ad944289b28b7b04b461086470cda
 
 PODFILE CHECKSUM: 6cc50e6bb7813227021ab22e3a47ceb9b5382859
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.9.1

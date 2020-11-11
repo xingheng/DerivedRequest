@@ -13,7 +13,7 @@
 @interface BaseTask : NSObject <NSCopying, BaseSessionManagerDelegate>
 
 @property (nonatomic, strong) Class sessionManagerClass;
-@property (nonatomic, strong) __kindof BaseSessionManager *sessionManager;
+@property (nonatomic, strong, readonly) __kindof BaseSessionManager *sessionManager;
 
 @property (nonatomic, strong, readonly) __kindof BaseRequest *request;
 
@@ -27,13 +27,18 @@
 - (void)sendRequest:(NSString *)requestURL
              method:(HTTPMethod)method
          parameters:(id)parameters
-         completion:(NetworkTaskCompletion)completionBlock;
+         completion:(NetworkTaskCompletion)completionBlock DEPRECATED_MSG_ATTRIBUTE("Deprecated! Use - (void)sendRequest: instead.");
 
 - (void)sendRequest:(NSString *)requestURL
              method:(HTTPMethod)method
          parameters:(id)parameters
            progress:(NetworkTaskProgress)taskProgress
-         completion:(NetworkTaskCompletion)completionBlock;
+         completion:(NetworkTaskCompletion)completionBlock  DEPRECATED_MSG_ATTRIBUTE("Deprecated! Use - (void)sendRequest: instead.");
+
+- (void)sendRequest:(void (^)(BaseRequest *request))requestBlock;
+
+- (void)sendRequest:(void (^)(BaseRequest *request))requestBlock
+     sessionManager:(void (^)(__kindof BaseSessionManager *sessionManager))sessionManagerBlock;
 
 /**
    Make sure the task/request to be resent is valid before calling this method, a valid task

@@ -21,14 +21,6 @@
 
 #pragma mark - Public
 
-- (GenericTask *(^)(SessionManagerGetter getter))setSessionManager
-{
-    return ^id (SessionManagerGetter getter) {
-               self.sessionManager = getter ? getter() : nil;
-               return self;
-    };
-}
-
 #define AssumeTaskRequest(__request__)        \
     BaseRequest * __request__ = self.request; \
     if (!__request__)                         \
@@ -37,7 +29,18 @@
         self.request = __request__;           \
     }
 
-- (GenericTask *(^)(RequestSetter setter))sendRequest
+- (GenericTask *(^)(SessionManagerClassGetter getter))setSessionManagerClass
+{
+    AssumeTaskRequest(request);
+
+    return ^id (SessionManagerClassGetter getter) {
+               self.sessionManagerClass = getter ? getter() : nil;
+               NSAssert([self.sessionManagerClass.new isKindOfClass:BaseSessionManager.class], @"Invalid session manager class!");
+               return self;
+    };
+}
+
+- (GenericTask *(^)(RequestSetter setter))requestEntity
 {
     AssumeTaskRequest(request);
 
@@ -90,7 +93,7 @@
     return ^id () {
                // From this time, the BaseSessionManager/AFHTTPSessionManager/NSURLSession
                //  retains the current task, too. Its retain count won't be decreased until
-               //  the task completion be executed.
+               //  the task completion be finished.
                [self.sessionManager sendRequest:self.request delegate:self];
                return self;
     };

@@ -10,7 +10,7 @@
 
 @interface BaseResponse ()
 
-@property (nonatomic, strong) NSDictionary *originDictionary;
+@property (nonatomic, strong) id rawData;
 @property (nonatomic, strong) NSError *error;
 
 @property (nonatomic, assign) NSUInteger code;
@@ -20,6 +20,29 @@
 @end
 
 @implementation BaseResponse
+
++ (instancetype)responseWithData:(id)rawData
+                           error:(NSError *)error
+{
+    return [self responseWithData:rawData error:error code:0 message:nil data:nil];
+}
+
++ (instancetype)responseWithData:(id)rawData
+                           error:(NSError *)error
+                            code:(NSUInteger)code
+                         message:(NSString *)message
+                            data:(id)data
+{
+    BaseResponse *response = [BaseResponse new];
+
+    response.rawData = rawData;
+    response.error = error;
+    response.code = code;
+    response.message = message;
+    response.data = data;
+
+    return response;
+}
 
 - (NSString *)description
 {
@@ -38,16 +61,3 @@
 }
 
 @end
-
-BaseResponse * CreateResponse(NSDictionary *originDictionary, NSUInteger code, NSString *message, id data, NSError *error)
-{
-    BaseResponse *response = [BaseResponse new];
-
-    response.originDictionary = originDictionary;
-    response.code = code;
-    response.message = message;
-    response.data = data;
-    response.error = error;
-
-    return response;
-}

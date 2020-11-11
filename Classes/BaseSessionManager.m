@@ -45,6 +45,7 @@
         request.requestURL = [self.requestURL copyWithZone:zone];
         request.method = self.method;
         request.parameters = [self.parameters copyWithZone:zone];
+        request.headerConfiguration = [self.headerConfiguration copy];
         request.progress = [self.progress copy];
         request.completion = [self.completion copy];
         request.isBatchTask = self.isBatchTask;
@@ -76,6 +77,10 @@
 
     request.delegate = delegate;
     [self.requests addObject:request];
+
+    if (request.headerConfiguration) {
+        request.headerConfiguration(self.requestSerializer);
+    }
 
     if (delegate) {
         [delegate sessionManager:self sendingRequest:request];

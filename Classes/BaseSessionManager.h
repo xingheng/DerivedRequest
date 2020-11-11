@@ -19,6 +19,7 @@ NSString * HTTPMethodString(HTTPMethod method);
 
 @class BaseSessionManager, BaseResponse;
 
+typedef void (^TaskRequestHeaderConfiguration)(NSDictionary *headers);
 typedef void (^NetworkTaskProgress)(NSProgress *progress);
 typedef void (^NetworkTaskCompletion)(BaseResponse *response);
 typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask *task);
@@ -32,6 +33,8 @@ typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask 
 @property (nonatomic, assign) HTTPMethod method;
 
 @property (nonatomic, strong) id parameters;
+
+@property (nonatomic, copy) TaskRequestHeaderConfiguration headerConfiguration;
 
 @property (nonatomic, copy) NetworkTaskProgress progress;
 

@@ -7,8 +7,9 @@
 
 #import <DerivedRequest/BaseTask.h>
 
-typedef BaseSessionManager * (^SessionManagerGetter)(void);
+typedef Class (^SessionManagerClassGetter)(void);
 typedef void (^RequestSetter)(BaseRequest *request);
+typedef BaseSessionManager * (^SessionManagerGetter)();
 typedef NetworkResponseDataHandler (^ResponseHandlerGetter)(void);
 typedef void (^ResponseSetter)(BaseResponse *response);
 
@@ -18,9 +19,9 @@ typedef void (^ResponseSetter)(BaseResponse *response);
  */
 @interface GenericTask : BaseTask
 
-- (GenericTask *(^)(SessionManagerGetter getter))setSessionManager;
+- (GenericTask *(^)(SessionManagerClassGetter getter))setSessionManagerClass;
 
-- (GenericTask *(^)(RequestSetter setter))sendRequest;
+- (GenericTask *(^)(RequestSetter setter))requestEntity;
 
 - (GenericTask *(^)(NetworkTaskProgress progress))progress;
 
