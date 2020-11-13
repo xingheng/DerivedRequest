@@ -125,6 +125,7 @@
         task.sessionManagerClass = [self.sessionManagerClass copy];
 
         task.responseHandler = self.responseHandler;
+        task.responseForwarder = self.responseForwarder;
         // task.response = self.response; When should we need it?
     }
 
@@ -146,6 +147,10 @@
         response = self.responseHandler(request, responseObject, error);
     } else {
         response = [BaseResponse responseWithData:responseObject error:error];
+    }
+
+    if (self.responseForwarder) {
+        response = self.responseForwarder(request, response);
     }
 
     self.response = response;

@@ -31,3 +31,4 @@
 @end
 
 typedef BaseResponse * (*NetworkResponseDataHandler)(BaseRequest *request, id responseObject, NSError *error);
+typedef BaseResponse * (*NetworkResponseForwarder)(BaseRequest *request, BaseResponse *response);
