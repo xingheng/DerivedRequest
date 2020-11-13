@@ -82,7 +82,7 @@
         request.headerConfiguration(self.requestSerializer);
     }
 
-    if (delegate) {
+    if ([delegate respondsToSelector:@selector(sessionManager:sendingRequest:)]) {
         [delegate sessionManager:self sendingRequest:request];
     }
 
@@ -159,24 +159,26 @@
 
     id<BaseSessionManagerDelegate> delegate = request.delegate;
 
-    if (delegate && ![delegate isEqual:[NSNull null]]) {
+    if (delegate) {
         response = [delegate sessionManager:self request:request completeWithResponse:responseObject task:task error:error];
     } else {
         response = responseObject ? : error;
         NSLog(@"No delegate to handle this response! %@. %@. %@", request, response, error);
     }
 
-    NetworkTaskCompletion completionBlock = request.completion;
-
-    if (completionBlock) {
-        completionBlock(response);
+    if ([delegate respondsToSelector:@selector(sessionManager:resolveRequest:response:)]) {
+        if (![delegate sessionManager:self resolveRequest:request response:response]) {
+            if (request.completion) {
+                request.completion(response);
+            }
+        }
     }
 
     // Make sure the BaseSessionManager itself could be release after finishing all the tasks.
     // https://github.com/AFNetworking/AFNetworking/issues/2149
     [self invalidateSessionCancelingTasks:NO];
 
-    if (delegate && ![delegate isEqual:[NSNull null]]) {
+    if ([delegate respondsToSelector:@selector(sessionManager:finishRequest:)]) {
         [delegate sessionManager:self finishRequest:request];
     }
 

@@ -16,7 +16,7 @@ NSString *const kSampleRequestHeaderValue = @"Value1";
 NSString *const kSampleResponseContentType = @"application/json";
 
 BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseObject, NSError *error);
-BaseResponse * ForwardResponseForHttpBinData(BaseRequest *request, BaseResponse *response);
+BOOL ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response);
 
 #define kHttpBinDomain @"https://httpbin.org"
 
@@ -54,7 +54,7 @@ BaseResponse * ForwardResponseForHttpBinData(BaseRequest *request, BaseResponse 
     SampleTask *task = [super task];
 
     task.responseHandler = GenerateResponseForHttpBinData;
-    task.responseForwarder = ForwardResponseForHttpBinData;
+    task.responseInterceptor = ResolveResponseForHttpBinData;
     task.sessionManagerClass = [SampleSessionManager class];
 
     return task;
@@ -98,11 +98,11 @@ BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseO
     return [BaseResponse responseWithData:responseObject error:error code:error ? -1 : HttpBinErrorCodeNone message:nil data:responseObject];
 }
 
-BaseResponse * ForwardResponseForHttpBinData(BaseRequest *request, BaseResponse *response)
+BOOL ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response)
 {
     if (response.code == 100) {
-        return nil;
+        return YES;
     }
 
-    return response;
+    return NO;
 }

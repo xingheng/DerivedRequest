@@ -18,7 +18,7 @@
 @property (nonatomic, strong, readonly) __kindof BaseRequest *request;
 
 @property (nonatomic, assign) NetworkResponseDataHandler responseHandler;
-@property (nonatomic, assign) NetworkResponseForwarder responseForwarder;
+@property (nonatomic, assign) NetworkResponseInterceptor responseInterceptor;
 @property (nonatomic, strong, readonly) __kindof BaseResponse *response;
 
 + (instancetype)task;

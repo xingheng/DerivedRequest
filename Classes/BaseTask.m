@@ -125,7 +125,7 @@
         task.sessionManagerClass = [self.sessionManagerClass copy];
 
         task.responseHandler = self.responseHandler;
-        task.responseForwarder = self.responseForwarder;
+        task.responseInterceptor = self.responseInterceptor;
         // task.response = self.response; When should we need it?
     }
 
@@ -149,12 +149,13 @@
         response = [BaseResponse responseWithData:responseObject error:error];
     }
 
-    if (self.responseForwarder) {
-        response = self.responseForwarder(request, response);
-    }
-
     self.response = response;
     return response;
+}
+
+- (BOOL)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response
+{
+    return self.responseInterceptor ? self.responseInterceptor(request, response) : NO;
 }
 
 - (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request

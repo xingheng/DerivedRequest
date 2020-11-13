@@ -50,10 +50,34 @@ typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask 
 
 @protocol BaseSessionManagerDelegate <NSObject>
 
-- (void)sessionManager:(BaseSessionManager *)sessionManager sendingRequest:(__kindof BaseRequest *)request;
+@required
 
+/// Parse the raw response data to BaseResponse object.
+/// @param sessionManager The attached session manager
+/// @param request The corresponding request
+/// @param responseObject Raw response data
+/// @param task The attached task
+/// @param error Response error
+/// @return Response result object
 - (BaseResponse *)sessionManager:(BaseSessionManager *)sessionManager request:(__kindof BaseRequest *)request completeWithResponse:(id)responseObject task:(NSURLSessionDataTask *)task error:(NSError *)error;
 
+@optional
+
+/// Entry for sending request.
+/// @param sessionManager The attached session manager
+/// @param request The corresponding request
+- (void)sessionManager:(BaseSessionManager *)sessionManager sendingRequest:(__kindof BaseRequest *)request;
+
+/// Entry for forwarding response handler to the task response handler or the default request's completion block.
+/// @param sessionManager The attached session manager
+/// @param request The corresponding request
+/// @param response The parsed response
+/// @return YES will suppress the default request completion block be executed, otherwise and default, NO.
+- (BOOL)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response;
+
+/// Entry for finishing request.
+/// @param sessionManager The attached session manager
+/// @param request The corresponding request
 - (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request;
 
 @end
