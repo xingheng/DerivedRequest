@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "DerivedRequest"
-  s.version      = "0.1.4"
+  s.version      = "0.1.5"
   s.summary      = "Series of derived classes for different servers' request and response."
 
   s.description  = <<-DESC
