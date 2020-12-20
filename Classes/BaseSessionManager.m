@@ -7,6 +7,7 @@
 //
 
 #import "BaseSessionManager.h"
+#import "BaseResponse.h"
 
 #pragma mark - BaseRequest
 
@@ -167,19 +168,23 @@
     }
 
     if ([delegate respondsToSelector:@selector(sessionManager:resolveRequest:response:)]) {
-        if (![delegate sessionManager:self resolveRequest:request response:response]) {
-            if (request.completion) {
-                request.completion(response);
-            }
+        id context = [delegate sessionManager:self resolveRequest:request response:response];
+
+        if (context) {
+            [response markAsResolved:context];
         }
+    }
+
+    if (request.completion) {
+        request.completion(response);
     }
 
     // Make sure the BaseSessionManager itself could be release after finishing all the tasks.
     // https://github.com/AFNetworking/AFNetworking/issues/2149
     [self invalidateSessionCancelingTasks:NO];
 
-    if ([delegate respondsToSelector:@selector(sessionManager:finishRequest:)]) {
-        [delegate sessionManager:self finishRequest:request];
+    if ([delegate respondsToSelector:@selector(sessionManager:finishRequest:response:)]) {
+        [delegate sessionManager:self finishRequest:request response:response];
     }
 
     // Once the request completion is done, release the strong delegate reference explictly.

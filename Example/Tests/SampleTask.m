@@ -16,7 +16,7 @@ NSString *const kSampleRequestHeaderValue = @"Value1";
 NSString *const kSampleResponseContentType = @"application/json";
 
 BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseObject, NSError *error);
-BOOL ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response);
+id ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response);
 
 #define kHttpBinDomain @"https://httpbin.org"
 
@@ -98,11 +98,12 @@ BaseResponse * GenerateResponseForHttpBinData(BaseRequest *request, id responseO
     return [BaseResponse responseWithData:responseObject error:error code:error ? -1 : HttpBinErrorCodeNone message:nil data:responseObject];
 }
 
-BOOL ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response)
+id ResolveResponseForHttpBinData(BaseRequest *request, BaseResponse *response)
 {
-    if (response.code == 100) {
-        return YES;
+    if (response.code == 403) {
+        return @"Pretend to handle the current authenzation error globally.";
     }
 
-    return NO;
+    // Return nil just let it go.
+    return nil;
 }

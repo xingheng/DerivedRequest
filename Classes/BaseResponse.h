@@ -10,6 +10,16 @@
 
 @class BaseRequest;
 
+typedef NS_ENUM(NSUInteger, BaseResponseState) {
+    BaseResponseStateIdle,
+    BaseResponseStateReady,
+    BaseResponseStateResolved,
+};
+
+#define RETURN_IFNOT_READY(_response_)      if ((_response_).state != BaseResponseStateReady) return
+#define RETURN_IFNOT_RESOLVED(_response_)   if ((_response_).state != BaseResponseStateResolved) return
+
+
 @interface BaseResponse : NSObject
 
 @property (nonatomic, strong, readonly, nonnull) id rawData;
@@ -18,6 +28,9 @@
 @property (nonatomic, assign, readonly) NSUInteger code;
 @property (nonatomic, copy, readonly, nullable) NSString *message;
 @property (nonatomic, strong, readonly, nullable) id data;
+
+@property (nonatomic, assign, readonly) BaseResponseState state;
+@property (nonatomic, strong, readonly, nullable) NSDictionary<NSNumber/*<BaseResponseState>*/*, id> *stateInfo;
 
 + (instancetype)responseWithData:(id)rawData
                            error:(NSError *)error;
@@ -28,7 +41,11 @@
                          message:(NSString *)message
                             data:(id)data;
 
+- (void)markAsReady:(id)context;
+
+- (void)markAsResolved:(id)context;
+
 @end
 
 typedef BaseResponse * (*NetworkResponseDataHandler)(BaseRequest *request, id responseObject, NSError *error);
-typedef BOOL (*NetworkResponseInterceptor)(BaseRequest *request, BaseResponse *response);
+typedef id (*NetworkResponseInterceptor)(BaseRequest *request, BaseResponse *response);

@@ -17,6 +17,9 @@
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, strong) id data;
 
+@property (nonatomic, assign) BaseResponseState state;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, id> *_stateInfo;
+
 @end
 
 @implementation BaseResponse
@@ -24,7 +27,10 @@
 + (instancetype)responseWithData:(id)rawData
                            error:(NSError *)error
 {
-    return [self responseWithData:rawData error:error code:0 message:nil data:nil];
+    BaseResponse *response = [self responseWithData:rawData error:error code:0 message:nil data:nil];
+
+    response.state = BaseResponseStateIdle;
+    return response;
 }
 
 + (instancetype)responseWithData:(id)rawData
@@ -33,15 +39,28 @@
                          message:(NSString *)message
                             data:(id)data
 {
-    BaseResponse *response = [BaseResponse new];
+    BaseResponse *response = [self new];
 
     response.rawData = rawData;
     response.error = error;
     response.code = code;
     response.message = message;
     response.data = data;
+    response.state = BaseResponseStateReady;
 
     return response;
+}
+
+- (void)markAsReady:(id)context
+{
+    self.state = BaseResponseStateReady;
+    self._stateInfo[@(BaseResponseStateReady)] = context;
+}
+
+- (void)markAsResolved:(id)context
+{
+    self.state = BaseResponseStateResolved;
+    self._stateInfo[@(BaseResponseStateResolved)] = context;
 }
 
 - (NSString *)description
@@ -58,6 +77,20 @@
     }
 
     return _message;
+}
+
+- (NSDictionary<NSNumber*, id> *)stateInfo
+{
+    return [self._stateInfo copy];
+}
+
+- (NSMutableDictionary<NSNumber*, id> *)_stateInfo
+{
+    if (!__stateInfo) {
+        __stateInfo = [NSMutableDictionary new];
+    }
+
+    return __stateInfo;
 }
 
 @end

@@ -72,6 +72,8 @@
     __block BaseResponse *response1, *response2;
 
     void (^ completion)(BaseResponse *response) = ^(BaseResponse *response) {
+        RETURN_IFNOT_READY(response);
+
         if (!response1) {
             response1 = response;
         } else if (!response2) {

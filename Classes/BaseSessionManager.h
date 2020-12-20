@@ -19,10 +19,10 @@ NSString * HTTPMethodString(HTTPMethod method);
 
 @class BaseSessionManager, BaseResponse;
 
-typedef void (^TaskRequestHeaderConfiguration)(NSDictionary *headers);
-typedef void (^NetworkTaskProgress)(NSProgress *progress);
-typedef void (^NetworkTaskCompletion)(BaseResponse *response);
-typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask *task);
+typedef void (^ TaskRequestHeaderConfiguration)(NSDictionary *headers);
+typedef void (^ NetworkTaskProgress)(NSProgress *progress);
+typedef void (^ NetworkTaskCompletion)(__kindof BaseResponse *response);
+typedef void (^ DataTaskCompletion)(__kindof BaseResponse *response, NSURLSessionDataTask *task);
 
 #pragma mark - BaseRequest
 
@@ -68,17 +68,18 @@ typedef void (^DataTaskCompletion)(BaseResponse *response, NSURLSessionDataTask 
 /// @param request The corresponding request
 - (void)sessionManager:(BaseSessionManager *)sessionManager sendingRequest:(__kindof BaseRequest *)request;
 
-/// Entry for forwarding response handler to the task response handler or the default request's completion block.
+/// Entry for resolving the response globally.
 /// @param sessionManager The attached session manager
 /// @param request The corresponding request
 /// @param response The parsed response
-/// @return YES will suppress the default request completion block be executed, otherwise and default, NO.
-- (BOOL)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response;
+/// @return context result to tell the client end response routes.
+- (id)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response;
 
 /// Entry for finishing request.
 /// @param sessionManager The attached session manager
 /// @param request The corresponding request
-- (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request;
+/// @param response The parsed response
+- (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response;
 
 @end
 

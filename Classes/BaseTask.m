@@ -153,14 +153,14 @@
     return response;
 }
 
-- (BOOL)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response
+- (id)sessionManager:(BaseSessionManager *)sessionManager resolveRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response
 {
-    return self.responseInterceptor ? self.responseInterceptor(request, response) : NO;
+    return self.responseInterceptor ? self.responseInterceptor(request, response) : nil;
 }
 
-- (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request
+- (void)sessionManager:(BaseSessionManager *)sessionManager finishRequest:(__kindof BaseRequest *)request response:(BaseResponse *)response
 {
-    // NSLog(@"Finished request %@", request);
+    [response markAsResolved:nil];
 }
 
 @end
